@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: db-backup
+  namespace: <<namespace>>
+spec:
+  schedule: "0 0 * * 0"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 180
+      template:
+        spec:
+          containers:
+          - name: db-backup
+            image: ghcr.io/meezaan/db-backup:latest
+            imagePullPolicy: Always
+            resources:
+              requests:
+                cpu: "200m"
+                memory: 100Mi
+              limits:
+                cpu: "500m"
+                memory: 512Mi
+            env:
+              - name: DBTYPE
+                value: "mysql"
+              - name:  USER
+                value: "<<user>>"
+              - name:  PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: <<secret>>
+                    key: <<keyinsecret>>
+              - name:  DBNAME
+                value: "<<name>>"
+              - name:  HOST
+                value: "<<db.host.com>>"
+              - name:  PORT
+                value: "3306"
+              - name: S3_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: backup-s3-creds
+                    key: access_key
+              - name: S3_SECRET_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: backup-s3-creds
+                    key: secret_key
+              - name: S3_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: backup-s3-creds
+                    key: host
+              - name: S3_BUCKET
+                valueFrom:
+                  secretKeyRef:
+                    name: backup-s3-creds
+                    key: bucket
+              - name: S3_REGION
+                valueFrom:
+                  secretKeyRef:
+                    name: backup-s3-creds
+                    key: region
+          restartPolicy: Never

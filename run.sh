@@ -1,7 +1,5 @@
 #!/bin/bash
 
-rclone config file
-
 echo "DATABASE TYPE IS $DBTYPE"
 
 if [ $DBTYPE == 'mysql' ]

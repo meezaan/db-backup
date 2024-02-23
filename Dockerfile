@@ -1,13 +1,7 @@
-FROM rclone/rclone:1.54
+FROM alpine:3.19
 
-# Install mysqldump
-RUN apk add --no-cache mysql-client
-
-# Install Pqsql
-RUN apk add postgresql
-
-# COPY rclone file
-COPY rclone.conf /config/rclone/rclone.conf
+# Install mysqldump & pgsql
+RUN apk add --no-cache mysql-client postgresql s3cmd
 
 RUN mkdir -p /scripts/
 COPY mysql.sh /scripts/mysql.sh
@@ -19,6 +13,10 @@ ENV PASSWORD ""
 ENV HOST ""
 ENV DBNAME ""
 ENV DBTYPE ""
-ENV RCLONEPATH ""
+ENV S3_ACCESS_KEY ""
+ENV S3_SECRET_KEY ""
+ENV S3_HOST ""
+ENV S3_BUCKET ""
+ENV S3_REGION ""
 
 ENTRYPOINT ["sh", "/scripts/run.sh"]
